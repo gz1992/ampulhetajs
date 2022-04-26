@@ -1,0 +1,144 @@
+<html>
+
+<script>
+	/*
+	####################
+	####################
+	# ################ #
+	#  ##############  #
+	#   ############   #
+	#    ##########    #
+	#     ########     #
+	#      ######      #
+	#       ####       #
+	#        ##        #
+	#        ##        #
+	#       #  #       #
+	#      #    #      #
+	#     #      #     #
+	#    #        #    #
+	#   #          #   #
+	#  #            #  #
+	# #              # #
+	##                ##
+	####################
+	*/
+
+	function showAmpulheta(n, passTime=false, sendArray=false) {
+		const mid = n / 2;
+		let i = 0;
+		let finalArray = [];
+		let lastIndexesIgnored = 0;
+		while (i < n) {
+			let j = 0;
+			let line = [];
+			while (j < n) {
+				const isCompleteFill = i === 0 || i === 1 || i + 1 === n;
+				const isEdges = j === 0 || j + 1 === n;
+				let ignoreFromBegin = 0;
+				let ignoreFromEnd = 0;
+				let halfEmptyOrHalfFull = false;
+				if (i < mid) {
+					// começo pro meio
+					const ignoreIndexes = i - 1;
+					ignoreFromBegin = ignoreIndexes;
+					ignoreFromEnd = n - 1 - ignoreIndexes;
+					lastIndexesIgnored = ignoreIndexes;
+					halfEmptyOrHalfFull = j > ignoreFromBegin && j < ignoreFromEnd;
+					if(i + 1 > mid) {
+						lastIndexesIgnored--;
+					}
+				} else {
+					// meio pro fim
+					ignoreFromBegin = lastIndexesIgnored;
+					ignoreFromEnd = n - 1 - lastIndexesIgnored;
+					halfEmptyOrHalfFull = j === ignoreFromBegin + 1 || j === ignoreFromEnd - 1;
+				}
+				let boundaryRules = j !== 0 && j !== n - 1 && halfEmptyOrHalfFull;
+				const shouldFill = isCompleteFill || isEdges || boundaryRules;
+				const whatToFill = !shouldFill ? ' ' : '#';
+				line.push(whatToFill)
+				j++;
+			}
+			if (i >= mid) {
+				lastIndexesIgnored--;
+			}
+			finalArray.push(line);
+			i++;
+		}
+		if (passTime) {
+			finalArray.reverse();
+		}
+
+		if (sendArray) {
+			return finalArray;
+		} else {
+			showResult(finalArray);
+		}
+	}
+	showAmpulheta(20);
+
+	function passingAmpulhetaTime() {
+		const ampulheta = showAmpulheta(20, false, true);
+		const max = ampulheta.length;
+		const allowedMax = max - 2;
+		const mid = Math.floor(max/2);
+
+		let i = 1;
+		while(i < allowedMax) {
+			// removing index
+			const columnIndex = findColumnIndex(ampulheta, i, mid, allowedMax);
+			ampulheta[i][columnIndex]
+		}
+	}
+
+	function findColumnIndex(ampulheta, i, midWithFloor, allowedMax) {
+		let found = false;
+		let columnIndex = midWithFloor;
+		let hitTheEdge = false;
+		const {ignoreFromBegin, ignoreFromEnd} = getEdges(ampulheta, i);
+		while(!found && columnIndex > 0) {
+			if (ampulheta[i][columnIndex].length > 1) {
+				found = true;
+			} else if (columnIndex > ignoreFromBegin + 1 && !hitTheEdge){
+				columnIndex--;
+			} else if (columnIndex === ignoreFromBegin + 1) {
+				// hit the edge
+				columnIndex = midWithFloor;
+				hitTheEdge = true;
+			} else if (columnIndex < ignoreFromEnd - 1) {
+				columnIndex++;
+			} else if (columnIndex === ignoreFromEnd - 1) {
+				columnIndex = -1;
+			}
+		}
+		return columnIndex
+	}
+
+	function getEdges(ampulheta, i) {
+		const mid = ampulheta.length / 2;
+		let ignoreFromBegin = 0;
+		let ignoreFromEnd = 0;
+		if (i < mid) {
+			// começo pro meio
+			const ignoreIndexes = i - 1;
+			ignoreFromBegin = ignoreIndexes;
+			ignoreFromEnd = ampulheta.length - 1 - ignoreIndexes;
+		}
+		return {ignoreFromBegin, ignoreFromEnd};
+	}
+
+	function hardTesteAmpulheta() {
+		for (let index = 20; index < 40; index++) {
+			showAmpulheta(index, index % 2 === 0);
+		}
+	}
+
+	function showResult(array) {
+		const newArray = array.map(line => {
+			return line.join('');
+		})
+		console.log('\n' + newArray.join('\n'));
+	}
+</script>
+</html>
